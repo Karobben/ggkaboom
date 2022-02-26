@@ -2,10 +2,10 @@
 \alias{Kaboom_bar}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-喵喵喵？
+Kaboom_bar
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Kaboom Bar is a function from raw data to make quick statistics and customized bar plots in minimal arguments for those who are frustrated about time spent making statistics.
 }
 \usage{
   Kaboom_bar(data, x,
@@ -62,30 +62,12 @@ Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "ca
 
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
+Quic Bar plot
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+  Karobben
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 
 Kaboom_bar(iris, "Species")
