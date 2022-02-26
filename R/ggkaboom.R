@@ -1,6 +1,3 @@
-library(ggplot2)
-library(reshape2)
-
 Kaboom_bar <- function(Data = Data, Group = Group, Var="SD",
 											 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
 										   Plate = "Set1"){
