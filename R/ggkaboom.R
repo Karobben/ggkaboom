@@ -35,3 +35,7 @@ Kaboom_bar <- function(Data = Data, Group = Group, Var="SD",
 
 	return(P)
 }
+
+Kaboom_test <- function(){
+	print("test")
+}
