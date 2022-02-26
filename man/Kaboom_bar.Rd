@@ -63,13 +63,12 @@ Kaboom_bar(Data = Data, Group = Group, Var = "SD", Pos = "dodge", BarW = 0.9, Ba
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+
+Kaboom_bar(iris, "Species")
 
 ## The function is currently defined as
-function (Data = Data, Group = Group, Var = "SD", Pos = "dodge", 
-    BarW = 0.9, BarAl = 0.6, ErbW = 0.3, Plate = "Set1") 
+function (Data = Data, Group = Group, Var = "SD", Pos = "dodge",
+    BarW = 0.9, BarAl = 0.6, ErbW = 0.3, Plate = "Set1")
 {
     List <- unique(Data[[Group]])
     TB = data.frame()
@@ -83,17 +82,17 @@ function (Data = Data, Group = Group, Var = "SD", Pos = "dodge",
         tmp$Variable = row.names(tmp)
         TB = rbind(TB, tmp)
     }
-    P <- ggplot() + geom_bar(data = TB, aes(x = Species, y = Mean, 
-        fill = Variable), stat = "identity", position = Pos, 
+    P <- ggplot() + geom_bar(data = TB, aes(x = Species, y = Mean,
+        fill = Variable), stat = "identity", position = Pos,
         alpha = BarAl, width = BarW) + theme_bw() + scale_fill_brewer(palette = Plate)
     if (Var == "SD") {
-        P <- P + geom_errorbar(data = TB, aes(x = Species, y = Mean, 
-            ymax = Mean + Sd, ymin = Mean - Sd, fill = Variable), 
+        P <- P + geom_errorbar(data = TB, aes(x = Species, y = Mean,
+            ymax = Mean + Sd, ymin = Mean - Sd, fill = Variable),
             position = position_dodge(0.9), width = ErbW)
     }
     if (Var == "SEM") {
-        P <- P + geom_errorbar(data = TB, aes(x = Species, y = Mean, 
-            ymax = Mean + Sem, ymin = Mean - Sem, fill = Variable), 
+        P <- P + geom_errorbar(data = TB, aes(x = Species, y = Mean,
+            ymax = Mean + Sem, ymin = Mean - Sem, fill = Variable),
             position = position_dodge(0.9), width = ErbW)
     }
     return(P)
