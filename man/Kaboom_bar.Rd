@@ -66,6 +66,10 @@ Kaboom_bar(Data = Data, Group = Group, Var = "SD", Pos = "dodge", BarW = 0.9, Ba
 
 Kaboom_bar(iris, "Species")
 
+Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet", Var = "SEM")
+
+Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "category", Var = "SEM", Facet_row = 'Variable', space = 'free', scales = 'free')
+
 ## The function is currently defined as
 function (Data = Data, Group = Group, Var = "SD", Pos = "dodge",
     BarW = 0.9, BarAl = 0.6, ErbW = 0.3, Plate = "Set1")

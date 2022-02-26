@@ -1,44 +1,47 @@
-TB_summary <- function(Data, Group){
-	List <- unique(Data[[Group]])
+TB_summary <- function(data, x){
+	List <- unique(data[[x]])
 	TB = data.frame()
 	for(i in List){
-		TMP = Data[Data[Group]==i,]
-		TMP = TMP[-which(colnames(TMP)==Group)]
+		TMP = data[data[x]==i,]
+		TMP = TMP[-which(colnames(TMP)==x)]
 		Mean = apply(TMP, 2, mean, na.rm = TRUE)
 		SD = apply(TMP, 2, sd, na.rm = TRUE)
 		SEM = SD/sqrt(nrow(TMP))
-		tmp = data.frame(Group=i, Mean=Mean, Sd=SD, Sem=SEM)
+		tmp = data.frame(x=i, Mean=Mean, Sd=SD, Sem=SEM)
 		tmp$Variable = row.names(tmp)
-		colnames(tmp)[1] = Group
+		colnames(tmp)[1] = x
 		TB = rbind(TB, tmp)
 	}
 	return(TB)
 }
 
-Kaboom_bar <- function(Data = Data, Group = Group,
-											 Group2= FALSE, Var="SD",
+Kaboom_bar <- function(data, x,
+											 Col= FALSE, Var="SD", fill = FALSE,
 											 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
-										   Plate = "Set1"){
+										   Plate = "Set1",
+										   Facet = "wrap", Facet_row = FALSE, scales = "fixed",
+										   space="fixed"){
 
-	if(Group2==FALSE){
-		TB = TB_summary(Data, Group)
+	if(Col==FALSE){
+		TB = TB_summary(data, x)
 	}else{
-		List <- unique(Data[[Group]])
+		List <- unique(data[[x]])
 		TB = data.frame()
 		for(i in List){
-			TMP = Data[Data[Group]==i,]
-			TMP = TMP[-which(colnames(TMP)==Group)]
-			TMP = TB_summary(TMP, Group2)
-			TMP[Group]= i
+			TMP = data[data[x]==i,]
+			TMP = TMP[-which(colnames(TMP)==x)]
+			TMP = TB_summary(TMP, Col)
+			TMP[x]= i
 			TB = rbind(TB, TMP)
 		}
 	}
 	print(head(TB))
 
-	if(Group2!=FALSE){
-		P <- ggplot(data= TB, aes(x= .data[[Group]], y = Mean, fill=.data[[Group2]]))
+	# fill coclor
+	if(fill!=FALSE){
+		P <- ggplot(data= TB, aes(x= .data[[x]], y = Mean, fill=.data[[fill]]))
 	}else{
-		P <- ggplot(data= TB, aes(x= .data[[Group]], y = Mean, fill=Variable))
+		P <- ggplot(data= TB, aes(x= .data[[x]], y = Mean, fill=Variable))
 	}
 	#print(class(TB[[P$labels$fill]]))
 	#print("here")
@@ -54,7 +57,7 @@ Kaboom_bar <- function(Data = Data, Group = Group,
 		P <- P + scale_fill_gradientn(colors=cc(20))
 	}
 
-	#TB[[Group2]] = factor(TB[[Group2]])
+	#TB[[Col]] = factor(TB[[Col]])
 	P <- P + geom_bar( stat='identity', position = Pos, alpha=BarAl, width= BarW)+
 	theme_bw()
 
@@ -66,7 +69,32 @@ Kaboom_bar <- function(Data = Data, Group = Group,
 		P <- P +		geom_errorbar(aes(ymax= Mean+Sem, ymin=Mean-Sem), position = position_dodge(.9), width = ErbW)
 
 	}
-	P <- P + labs(x=Group)
+	P <- P + labs(x=x)
+
+	P + theme(strip.background = element_rect(fill = 'white'))
+
+	# Facte
+	print(Facet_row)
+	print(Col)
+	if(Col!=FALSE){
+		if(Facet!=FALSE){
+			if(Facet=="wrap"){
+				if (Facet_row!=FALSE){
+					P <- P + facet_wrap( TB[[Facet_row]] ~ .data[[Col]] , scales=scales)
+				}else{
+					P <- P + facet_wrap(.data[[Col]]~., scales=scales)
+			}
+		}
+			if(Facet=="grid"){
+				if (Facet_row!=FALSE){
+					P <- P + facet_grid( TB[[Facet_row]] ~ .data[[Col]] , scales=scales, space = space)
+				}else{
+					P <- P + facet_grid(.data[[Col]]~., scales=scales, space= space)
+			}
+		}
+		}
+
+	}
 	return( P)
 }
 
