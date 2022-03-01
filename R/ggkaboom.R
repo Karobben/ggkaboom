@@ -16,11 +16,11 @@ TB_summary <- function(data, x){
 }
 
 Kaboom_bar <- function(data, x,
-											 Col= FALSE, Var="SD", fill = FALSE,
-											 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
-										   Plate = "Set1",
-										   Facet = "wrap", Facet_row = FALSE, scales = "fixed",
-										   space="fixed"){
+		 Col= FALSE, Var="SD", fill = FALSE,
+		 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
+	   Plate = "Set1",
+	   Facet = "wrap", Facet_row = FALSE, scales = "fixed", space="fixed",
+	   Vari_level= FALSE, Frow_level = FALSE){
 
 	if(Col==FALSE){
 		TB = TB_summary(data, x)
@@ -36,6 +36,21 @@ Kaboom_bar <- function(data, x,
 		}
 	}
 	print(head(TB))
+
+
+	# Factor inheritance
+	if( class(data[[x]]) == "factor"){
+		TB[[x]] = factor(TB[[x]], levels= levels(data[[x]]))
+	}
+	if( class(data[[Col]]) == "factor"){
+		TB[[Col]] = factor(TB[[Col]], levels= levels(data[[Col]]))
+	}
+	if( Vari_level != "FALSE"){
+		TB$Variable = factor(TB$Variable, levels= Vari_level)
+	}
+	if( Frow_level != "FALSE"){
+		TB[[Facet_row]] = factor(TB[[Facet_row]], levels= Frow_level)
+	}
 
 	# fill coclor
 	if(fill!=FALSE){
