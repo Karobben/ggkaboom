@@ -42,13 +42,15 @@ Kaboom_bar <- function(data, x,
 	if( class(data[[x]]) == "factor"){
 		TB[[x]] = factor(TB[[x]], levels= levels(data[[x]]))
 	}
-	if( class(data[[Col]]) == "factor"){
-		TB[[Col]] = factor(TB[[Col]], levels= levels(data[[Col]]))
+	if(Col!=FALSE){
+		if( class(data[[Col]]) == "factor"){
+			TB[[Col]] = factor(TB[[Col]], levels= levels(data[[Col]]))
+		}
 	}
-	if( Vari_level != "FALSE"){
+	if( Vari_level != FALSE){
 		TB$Variable = factor(TB$Variable, levels= Vari_level)
 	}
-	if( Frow_level != "FALSE"){
+	if( Frow_level != FALSE){
 		TB[[Facet_row]] = factor(TB[[Facet_row]], levels= Frow_level)
 	}
 
