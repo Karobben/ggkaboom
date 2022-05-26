@@ -21,8 +21,9 @@ Num = 0
 for(Col in list(A,B,C)){
     Num = Num + 1
     TB[paste("Group",Num, sep="_")] = 0
-    TB[paste("Group",Num, sep="_")][row.names(TB) %in% Col,] = 1
+    TB[paste("Group",Num, sep="_")][row.names(TB) \%in\% Col,] = 1
 }
+
 
 Kaboom_flow(TB)
 
