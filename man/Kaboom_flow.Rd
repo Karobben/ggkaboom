@@ -1,5 +1,5 @@
-\name{Kaboom_bar}
-\alias{Kaboom_bar}
+\name{Kaboom_flow}
+\alias{Kaboom_flow}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Kaboom_flow
