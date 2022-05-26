@@ -3,7 +3,7 @@ library(ggplot2)
 library(reshape2)
 library(RColorBrewer)
 
-Kaboom_Flow <- function(TB){
+Kaboom_flow <- function(TB){
 
     coul = brewer.pal(12, "Set3")
     # Melt data
