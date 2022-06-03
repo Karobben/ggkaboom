@@ -1,14 +1,15 @@
 library(stringr)
 library(ggplot2)
+library(forcats)
 library(reshape2)
 library(RColorBrewer)
 
 Kaboom_flow <- function(TB,
-    Bar_w= 0.2, bar_fill = FALSE,
-    Show_Count=FALSE, Count.pos = 0.5,
-    Show_Group=FALSE, Group.pos = 0.5){
+    Bar_w= 0.2, C_alp = .1,
+    bar_fill = FALSE, bar_color = "black", alpha = 0.4,
+    Show_Count=FALSE, Count.pos = 0.5, Count.per = FALSE,
+    Show_Group=FALSE, Group.pos = 0.5, color_value = brewer.pal(12, "Set1")){
 
-    coul = brewer.pal(12, "Set3")
     # Melt data
     Group = c()
     for(i in c(1:nrow(TB))){
@@ -37,35 +38,45 @@ Kaboom_flow <- function(TB,
     Group_N$Group <- Group$Group
 
     Group_TB <- melt(Group_N)
+    Palette_row = round(length(unique(Group_TB$Group))/length(color_value))+1
 
 
     Mutation_flow<- function(TB, Bar_w= 0.2,
-        Show_Count=FALSE, Count.pos = 0.5,
+        Show_Count=FALSE, Count.pos = 0.5, Count.per = FALSE,
         Show_Group=FALSE, Group.pos = 0.5){
+
+        if (Count.per == TRUE){
+            Group_TB$labs = Group_TB$value
+            for(group_ in unique(Group_TB$variable)){
+                Group_TB$labs[Group_TB$variable == group_] = Group_TB$labs[Group_TB$variable == group_]/sum(Group_TB$value[Group_TB$variable == group_])
+            }
+            Group_TB$labs = scales::percent(Group_TB$labs, accuracy = 0.01)
+        }else{
+            Group_TB$labs = Group_TB$value
+        }
         if(bar_fill==TRUE){
             P <- ggplot() +
-            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = fct_rev(Group)), stat = 'identity', position = 'fill', width = Bar_w) + theme_bw()
+            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = Group), color=bar_color, stat = 'identity', position = 'fill', width = Bar_w) + theme_bw() + scale_fill_manual(values = rep(color_value,  Palette_row))
             if (Show_Count==TRUE){
-                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=value), position = position_fill(Count.pos))
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , fill = Group, label=labs), position = position_fill(Count.pos))
             }
             if (Show_Group==TRUE){
-                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=Group), position = position_fill(Group.pos))
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , fill = Group, label=Group), position = position_fill(Group.pos))
             }
         }
         else{
             P <- ggplot() +
-            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = fct_rev(Group)), stat = 'identity', position = 'stack', width = Bar_w) + theme_bw()
+            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = Group), color=bar_color, stat = 'identity', position = 'stack', width = Bar_w) + theme_bw() + scale_fill_manual(values = rep(color_value,  Palette_row))
             if (Show_Count==TRUE){
-                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=value), position = position_stack(Count.pos))
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value, fill = Group, label=labs), position = position_stack(Count.pos))
             }
             if (Show_Group==TRUE){
-                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=Group), position = position_stack(Group.pos))
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value, fill = Group, label=Group), position = position_stack(Group.pos))
             }
         }
         return(P)
     }
-
-    Connect <- function(TMP_TB, Bar_w = 0.2, C_alp = .1, Color="grey"){
+    Connect <- function(TMP_TB, Bar_w = 0.2, C_alp = .1, alpha = 0.4, Color="grey"){
         Indent_ = Bar_w/2
         #C_alp = (1-Bar_w) * C_alp + Indent_
         C_alp = (max(TMP_TB$X)- min(TMP_TB$X) -Bar_w) * C_alp + Indent_
@@ -93,7 +104,7 @@ Kaboom_flow <- function(TB,
 
             # use the loess data to add the 'ribbon' to plot
             p <- geom_ribbon(data = df2, aes(x = x, ymin = ymin, ymax = ymax),
-            fill = Color, alpha = 0.4)
+            fill = Color, alpha = alpha)
             return(p)
         }
 
@@ -101,6 +112,7 @@ Kaboom_flow <- function(TB,
 
     Index_ = c()
     for(Row in c(1:nrow(Group_N))){
+
         TMP <- Group_N[Row,1:(ncol(Group_N)-1)]
         # clean the duplicate 0
         # remove 0
@@ -122,17 +134,21 @@ Kaboom_flow <- function(TB,
         Index_ = c(Index_, list(Result))
     }
 
-    P <- Mutation_flow(TB, Show_Count=Show_Count, Count.pos = Count.pos, Show_Group=Show_Group, Group.pos = Group.pos)
+    P <- Mutation_flow(TB, Bar_w = Bar_w, Show_Count=Show_Count, Count.pos = Count.pos, Count.per = Count.per, Show_Group=Show_Group, Group.pos = Group.pos)
     for(i in c(1:length(Index_))){
         TMP = Index_[[i]]
         Row = as.numeric(rownames(TMP))
-        TMP = Increasing_TB[Row:(Row+1),colnames(TMP)]
+        if(bar_fill == TRUE){
+            TMP = Increasing_TB[Row:(Row+1),colnames(TMP)]/Increasing_TB[c(1,1),colnames(TMP)]
+        }else{
+            TMP = Increasing_TB[Row:(Row+1),colnames(TMP)]
+        }
         TMP$line=c("UP","DOWN")
         for(col_i in c(1:(ncol(TMP)-2))){
             TMP_TB = melt(TMP[c(col_i,col_i+1, ncol(TMP))])
             TMP_TB$X = as.numeric(factor(TMP_TB$variable , levels=colnames(Increasing_TB
             )))
-            P <- P + Connect(TMP_TB,.2, .1, coul[1+(i%%12)])
+            P <- P + Connect(TMP_TB, Bar_w, C_alp, alpha, rep(color_value,  Palette_row)[(i%%12)])
         }
     }
     return(list(P,Group_TB_gene))
