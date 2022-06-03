@@ -3,7 +3,10 @@ library(ggplot2)
 library(reshape2)
 library(RColorBrewer)
 
-Kaboom_flow <- function(TB){
+Kaboom_flow <- function(TB,
+    Bar_w= 0.2, bar_fill = FALSE,
+    Show_Count=FALSE, Count.pos = 0.5,
+    Show_Group=FALSE, Group.pos = 0.5){
 
     coul = brewer.pal(12, "Set3")
     # Melt data
@@ -36,10 +39,29 @@ Kaboom_flow <- function(TB){
     Group_TB <- melt(Group_N)
 
 
-    Mutation_flow<- function(TB, Bar_w= 0.2){
-        P <- ggplot() +
-        geom_bar(data=Group_TB, aes(x=variable, y=value, fill = Group), stat = 'identity', position = 'stack', width = Bar_w) + theme_bw()
-
+    Mutation_flow<- function(TB, Bar_w= 0.2,
+        Show_Count=FALSE, Count.pos = 0.5,
+        Show_Group=FALSE, Group.pos = 0.5){
+        if(bar_fill==TRUE){
+            P <- ggplot() +
+            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = fct_rev(Group)), stat = 'identity', position = 'fill', width = Bar_w) + theme_bw()
+            if (Show_Count==TRUE){
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=value), position = position_fill(Count.pos))
+            }
+            if (Show_Group==TRUE){
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=Group), position = position_fill(Group.pos))
+            }
+        }
+        else{
+            P <- ggplot() +
+            geom_bar(data=Group_TB, aes(x=variable, y=value, fill = fct_rev(Group)), stat = 'identity', position = 'stack', width = Bar_w) + theme_bw()
+            if (Show_Count==TRUE){
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=value), position = position_stack(Count.pos))
+            }
+            if (Show_Group==TRUE){
+                P <- P + geom_text( data=subset( Group_TB,value != 0), aes(x=variable, y=value , label=Group), position = position_stack(Group.pos))
+            }
+        }
         return(P)
     }
 
@@ -100,7 +122,7 @@ Kaboom_flow <- function(TB){
         Index_ = c(Index_, list(Result))
     }
 
-    P <- Mutation_flow(TB)
+    P <- Mutation_flow(TB, Show_Count=Show_Count, Count.pos = Count.pos, Show_Group=Show_Group, Group.pos = Group.pos)
     for(i in c(1:length(Index_))){
         TMP = Index_[[i]]
         Row = as.numeric(rownames(TMP))
