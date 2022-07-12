@@ -1,41 +1,68 @@
-TB_summary <- function(data, x){
-	List <- unique(data[[x]])
-	TB = data.frame()
-	for(i in List){
-		TMP = data[data[x]==i,]
-		TMP = TMP[-which(colnames(TMP)==x)]
-		Mean = apply(TMP, 2, mean, na.rm = TRUE)
-		SD = apply(TMP, 2, sd, na.rm = TRUE)
-		SEM = SD/sqrt(nrow(TMP))
-		tmp = data.frame(x=i, Mean=Mean, Sd=SD, Sem=SEM)
-		tmp$Variable = row.names(tmp)
-		colnames(tmp)[1] = x
-		TB = rbind(TB, tmp)
-	}
-	return(TB)
+P2S <- function(P){
+    S = rep("ns", length(P))
+    S[P <= 0.05]= "*"
+    S[P <= 0.01]= "**"
+    S[P <= 0.001]= "***"
+    S[P <= 0.0001]= "****"
+    return(S)
+}
+
+TB_summary <- function(data, x, P_test=FALSE){
+    List <- unique(data[[x]])
+    TB = data.frame()
+    for(i in List){
+        TMP = data[data[x]==i,]
+        TMP = TMP[-which(colnames(TMP)==x)]
+        Mean = apply(TMP, 2, mean, na.rm = TRUE)
+        SD = apply(TMP, 2, sd, na.rm = TRUE)
+        SEM = SD/sqrt(nrow(TMP))
+        N = nrow(TMP)
+        tmp = data.frame(x=i, Mean=Mean, Sd=SD, Sem=SEM, N=N)
+        tmp$Variable = row.names(tmp)
+        colnames(tmp)[1] = x
+        TB = rbind(TB, tmp)
+    }
+    if(length(List)==2){
+        if(P_test=='ttest'){
+            P = t.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
+            data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
+        }
+        if(P_test=="wilcox"){
+            P = wilcox.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
+            data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
+        }
+        TB$pval = P
+        TB$Stars = P2S(P)
+        TB$Stars[1] = ""
+    }
+
+    return(TB)
 }
 
 Kaboom_bar <- function(data, x,
-		 Col= FALSE, Var="SD", fill = FALSE,
-		 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
-	   Plate = "Set1",
-	   Facet = "wrap", Facet_row = FALSE, scales = "fixed", space="fixed",
-	   Vari_level= FALSE, Frow_level = FALSE){
-
-	if(Col==FALSE){
-		TB = TB_summary(data, x)
-	}else{
-		List <- unique(data[[x]])
-		TB = data.frame()
-		for(i in List){
-			TMP = data[data[x]==i,]
-			TMP = TMP[-which(colnames(TMP)==x)]
-			TMP = TB_summary(TMP, Col)
-			TMP[x]= i
-			TB = rbind(TB, TMP)
-		}
-	}
-	print(head(TB))
+        Col= FALSE, Var="SD", fill = FALSE,
+        Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
+        Plate = "Set1",
+        Facet = "wrap", Facet_row = FALSE, scales = "fixed",
+        space="fixed",
+        Vari_level= FALSE, Frow_level = FALSE,
+        Show_N_Group = TRUE, Show_N_x = FALSE,
+        P_test = FALSE
+        ){
+    if(Col==FALSE){
+    	TB = TB_summary(data, x)
+    }else{
+        List <- unique(data[[x]])
+        TB = data.frame()
+        for(i in List){
+            TMP = data[data[x]==i,]
+            TMP = TMP[-which(colnames(TMP)==x)]
+            TMP = TB_summary(TMP, Col, P_test= P_test)
+            TMP[x]= i
+            TB = rbind(TB, TMP)
+        }
+        }
+    print(head(TB))
 
 
 	# Factor inheritance
@@ -53,6 +80,15 @@ Kaboom_bar <- function(data, x,
 	if( Frow_level != FALSE){
 		TB[[Facet_row]] = factor(TB[[Facet_row]], levels= Frow_level)
 	}
+
+    # If show N By x
+    if(Show_N_x == TRUE){
+        TB[x]<- factor(paste(TB[[x]], TB[['N']], sep="\nn="), levels = unique(paste(TB[[x]], TB[['N']], sep="\nn=")))
+    }
+    # If show N By group
+    if(Show_N_Group == TRUE){
+        TB[Col]<- factor(paste(TB[[Col]], TB[['N']], sep="\nn="), levels = unique(paste(TB[[Col]], TB[['N']], sep="\nn=")))
+    }
 
 	# fill coclor
 	if(fill!=FALSE){
@@ -79,15 +115,25 @@ Kaboom_bar <- function(data, x,
 	theme_bw()
 
 	if (Var == "SD"){
-		P <- P +		geom_errorbar(aes( ymax= Mean+Sd, ymin=Mean-Sd), position = position_dodge(.9), width = ErbW)
+		P <- P +  geom_errorbar(aes( ymax= Mean+Sd, ymin=Mean-Sd), position = position_dodge(.9), width = ErbW)
 	}
 
 	if (Var == "SEM"){
-		P <- P +		geom_errorbar(aes(ymax= Mean+Sem, ymin=Mean-Sem), position = position_dodge(.9), width = ErbW)
+		P <- P +  geom_errorbar(aes(ymax= Mean+Sem, ymin=Mean-Sem), position = position_dodge(.9), width = ErbW)
 
 	}
 	P <- P + labs(x=x)
+    if(P_test!=FALSE){
+        if(Var == "SEM"){
+            P <- P + geom_text(aes(y = Mean+Sem, label=.data[['Stars']]), position = position_dodge(.9), vjust= -0.2)
+        }else if(Var == "SD"){
+            P <- P + geom_text(aes(y = Mean+Sd, label=.data[['Stars']]), position = position_dodge(.9), vjust= -0.2)
 
+        }else{
+            P <- P + geom_text(aes(y = Mean, label=.data[['Stars']]), position = position_dodge(.9), vjust= -0.2)
+        }
+
+    }
 	P + theme(strip.background = element_rect(fill = 'white'))
 
 	# Facte
