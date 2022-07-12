@@ -6,7 +6,7 @@ Date: 2022-02-25
 Author: Karobben
 Maintainer: Karobben <a591465098@outlook.com>
 Description: ggkaboom is a group of function for a quick ggplot view.
-Depends: R (>= 3.5.0), ggplot2 (>= 3.0.0), reshape2, RColorBrewer, stringr, patchwork, forcats
+Depends: R (>= 3.5.0), ggplot2 (>= 3.0.0), reshape2, RColorBrewer, stringr, patchwork, forcats, DescTools
 Imports:
     ggplot2 (>= 3.0.0)
 Remotes:
