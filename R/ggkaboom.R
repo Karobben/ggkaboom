@@ -23,25 +23,31 @@ TB_summary <- function(data, x, P_test=FALSE, Show_ns=FALSE){
         TB = rbind(TB, tmp)
     }
     if(length(List)==2){
-        if(P_test=='ttest'){
-            P = t.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
-            data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
-            if(Show_ns==FALSE){
-                TB$Stars[TB$Stars=='ns'] = ""
+        if(P_test!=FALSE){
+            if(P_test=='ttest'){
+                P = t.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
+                data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
+                TB$pval = P
+                TB$Stars = P2S(P)
+                TB$Stars[1] = ""
+                if(Show_ns==FALSE){
+                    TB$Stars[TB$Stars=='ns'] = ""
+                }
+                print("\n\n\n\n\ngood\n\n\n\n\n")
+                print(P)
             }
+            if(P_test=="wilcox"){
+                P = wilcox.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
+                data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
+                TB$pval = P
+                TB$Stars = P2S(P)
+                TB$Stars[1] = ""
+                if(Show_ns==FALSE){
+                    TB$Stars[TB$Stars=='ns'] = ""
+                }
 
-        }
-        if(P_test=="wilcox"){
-            P = wilcox.test(data[-which(colnames(data)==x)][data[[x]]==List[1],],
-            data[-which(colnames(data)==x)][data[[x]]==List[2],])$p.value
-            if(Show_ns==FALSE){
-                TB$Stars[TB$Stars=='ns'] = ""
             }
-
         }
-        TB$pval = P
-        TB$Stars = P2S(P)
-        TB$Stars[1] = ""
     }
     if(P_test=="DunTest"){
         if(sum(data[[-which(colnames(data)==x)]])!= 0){
@@ -58,7 +64,6 @@ TB_summary <- function(data, x, P_test=FALSE, Show_ns=FALSE){
     }
     return(TB)
 }
-
 
 TB_anova <- function(data, x, Show_ns=FALSE){
     print(head(data))
