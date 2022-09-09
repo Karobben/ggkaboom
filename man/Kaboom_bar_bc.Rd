@@ -8,19 +8,31 @@ Kaboom_bar
 Kaboom Bar is a function from raw data to make quick statistics and customized bar plots in minimal arguments for those who are frustrated about time spent making statistics.
 }
 \usage{
-  Kaboom_bar(data, x,
-	 Col= FALSE, Var="SD", fill = FALSE,
-	 Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
-   Plate = "Set1",
-   Facet = "wrap", Facet_row = FALSE, scales = "fixed",
-   space="fixed")
+Kaboom_bardata, x,
+      Col= FALSE, Var="SD", fill = FALSE,
+      Pos = "dodge", BarW = .9, BarAl = .6, ErbW = .3,
+      Plate = "Set1",
+      Facet = "wrap", Facet_row = FALSE, scales = "fixed",
+      space="fixed",
+      Vari_level= FALSE, Frow_level = FALSE,
+      Show_N_Group = TRUE, Show_N_x = FALSE, Show_ns = FALSE,
+      P_test = FALSE
+      )
 
 # Quick Start
-Kaboom_bar(iris, "Species")
-Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet", Var = "SEM")
-Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "category", Var = "SEM", Facet_row = 'Variable', space = 'free', scales = 'free')
+Kaboom_bar(melt(iris), "variable", 'Species', Facet = F, fill='Species', P_test = "Tukey", Facet_row = "variable")
+Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet", Var = "SEM", P_test = "DunTest", Show_N_Group = F)
+## Adding gg fetures
+Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet")[[1]] + theme_classic()
+## Statistic results
 
+Result <- Kaboom_bar(melt(iris), "variable", 'Species', Facet = F, fill='Species', P_test = "Tukey", Facet_row = "variable")
+
+Result[[1]] # ggplot
+Result[[2]] # Summrized table with P value if it is not anova Tukey
+Result[[3]] # Anova Tukey test table result if you use "Tukey"
 }
+
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{
@@ -34,6 +46,10 @@ Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "ca
 }
   \item{fill}{
   Colors for the bar. Default is the Variable
+}
+\item{P_test}{
+Piared test: "ttest", "wilcox";
+Pairvised anova: "DunTest", "Tukey"
 }
   \item{BarW}{
   float. Width of the bar
@@ -70,11 +86,12 @@ Quic Bar plot
 
 \examples{
 
-Kaboom_bar(iris, "Species")
+Kaboom_bar(melt(iris), "variable", 'Species', Facet = F, fill='Species', P_test = "Tukey", Facet_row = "variable")
+Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet", Var = "SEM", P_test = "DunTest", Show_N_Group = F)
+## Adding gg fetures
+Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet")[[1]] + theme_classic()
 
-Kaboom_bar(ChickWeight[-3], 'Time', 'Diet',Facet = F, fill = "Diet", Var = "SEM")
-
-Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "category", Var = "SEM", Facet_row = 'Variable', space = 'free', scales = 'free')
+#Kaboom_bar(midwest[c(1:10,200:210, 300:310), c(3:8,ncol(midwest))], "state", "category", Var = "SEM", Facet_row = 'Variable', space = 'free', scales = 'free')
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

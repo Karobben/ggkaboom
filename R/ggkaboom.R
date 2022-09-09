@@ -168,6 +168,14 @@ Kaboom_bar <- function(data, x,
 
     if(P_test=="Tukey"){
         Ava_TB <- Ava_TB[!Ava_TB$Stars =="",]
+        if (nrow(Ava_TB)==0){
+            print("")
+            print("")
+            print("")
+            print("None of them Are significant different!!!")
+            print("")
+            print("")
+        }
         Ra_ = BarW/length(unique(TB[[fill]]))
         if( class(data[[x]]) == "factor"){
             Ava_TB[[x]] <- factor(Ava_TB[[x]], levels = levels(data[[x]]))
