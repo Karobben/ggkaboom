@@ -24,7 +24,7 @@ Kaboom_break <-  function(p,  Break = c(0, 10, 40, 100),  R=c(1,1),
   Num = 0
   for(i in c(1:round((length(Break)/2)-1))){
       Num = Num +1
-      p_tmp <- p +  coord_cartesian(ylim = c(Break[i*2+1],Break[i*2+2]))+
+      p_tmp <- p +  coord_cartesian(ylim = c(Break[i*2+1],Break[i*2+2]), expand = F)+
       theme(axis.text.x = element_blank(),
       axis.title = element_blank(), axis.ticks.x = element_blank(),
       legend.position =   'none',
@@ -54,7 +54,7 @@ Kaboom_break <-  function(p,  Break = c(0, 10, 40, 100),  R=c(1,1),
   CMD = str_replace_all(CMD, "^/", "")
 
 
-  p_end <- p +  coord_cartesian(ylim = c(Break[1], Break[2]))+
+  p_end <- p +  coord_cartesian(ylim = c(Break[1], Break[2]), expand = F)+
     theme(title = element_blank(), plot.title = element_blank(),
           panel.grid = panel.grid, panel.background = panel.background,
           panel.border = panel.border, legend.position =   'none',
