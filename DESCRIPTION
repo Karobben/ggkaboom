@@ -1,7 +1,7 @@
 Package: ggkaboom
 Type: Package
 Title: A quick and elegant plot from ggplot
-Version: 0.0.0.0.0.0.0.0.0.0.0.0.0.1
+Version: 0.3.1
 Date: 2022-02-25
 Author: Karobben
 Maintainer: Karobben <a591465098@outlook.com>
