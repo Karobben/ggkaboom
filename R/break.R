@@ -7,7 +7,7 @@ Kaboom_break <-  function(p,  Break = c(0, 10, 40, 100),  R=c(1,1),
     panel.border = element_blank(),
     panel.grid.num = 10,
     panel.grid.scale = F,
-    legend.position = 'bottom',
+    legend.position = 'right',
     legend.direction = 'vertical'
     ){
 
@@ -55,9 +55,9 @@ Kaboom_break <-  function(p,  Break = c(0, 10, 40, 100),  R=c(1,1),
 
 
   p_end <- p +  coord_cartesian(ylim = c(Break[1], Break[2]), expand = F)+
-    theme(title = element_blank(), plot.title = element_blank(),
+    theme(axis.title = element_blank(), plot.title = element_blank(),
           panel.grid = panel.grid, panel.background = panel.background,
-          panel.border = panel.border, legend.position =   'none',
+          panel.border = panel.border, legend.position =   'None',
           axis.line = element_line(colour = "black"))
   if (panel.grid.scale=="len"){
     p_end <- p_end + scale_y_continuous(
@@ -65,9 +65,10 @@ Kaboom_break <-  function(p,  Break = c(0, 10, 40, 100),  R=c(1,1),
         len =1 + round(R[1] * panel.grid.num/sum(R))))
   }
   CMD = paste(CMD, "/p_end + plot_layout(design = layout, guides = 'collect')",sep="")
+  print(CMD)
   P <- eval(parse(text=CMD))
-  P <- P + theme( legend.position = legend.position,
+  P <- P & theme( legend.position = legend.position,
       legend.direction = legend.direction
-    )
+  )
   return(P)
 }
